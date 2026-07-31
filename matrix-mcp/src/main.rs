@@ -1,7 +1,7 @@
 mod cli;
 
 use crate::cli::{Cli, Command};
-use matrix_mcp::matrix::Bot;
+use matrix_bot::Bot;
 use matrix_mcp::mcp::MatrixServer;
 
 use anyhow::Result;

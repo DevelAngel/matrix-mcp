@@ -2027,6 +2027,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
 
 [[package]]
+name = "matrix-bot"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "assert_fs",
+ "matrix-sdk",
+ "serde_json",
+ "tracing",
+]
+
+[[package]]
 name = "matrix-mcp"
 version = "0.1.0"
 dependencies = [
@@ -2035,6 +2046,7 @@ dependencies = [
  "axum",
  "clap",
  "clap-verbosity-flag",
+ "matrix-bot",
  "matrix-sdk",
  "rmcp",
  "secrecy",
@@ -2067,6 +2079,22 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.119",
+]
+
+[[package]]
+name = "matrix-relay"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "clap-verbosity-flag",
+ "matrix-bot",
+ "rmcp",
+ "secrecy",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
@@ -3005,6 +3033,8 @@ dependencies = [
  "rustls",
  "rustls-pki-types",
  "rustls-platform-verifier",
+ "serde",
+ "serde_json",
  "sync_wrapper",
  "tokio",
  "tokio-rustls",
@@ -3050,6 +3080,7 @@ dependencies = [
  "pastey",
  "pin-project-lite",
  "rand 0.10.2",
+ "reqwest",
  "rmcp-macros",
  "schemars",
  "serde",

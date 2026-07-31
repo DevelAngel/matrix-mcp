@@ -1,4 +1,4 @@
-use crate::matrix::Bot;
+use matrix_bot::Bot;
 
 use rmcp::ErrorData;
 use rmcp::Json;
