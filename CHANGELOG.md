@@ -5,9 +5,14 @@ All notable changes to this project will be documented in this file. See [conven
 ---
 ## [0.3.0](https://github.com/DevelAngel/matrix-mcp/compare/v0.2.0..v0.3.0) - 2026-07-31
 
+### Build
+
+- bump rmcp from 2.2.0 to 3.0.1 - ([8d5ea42](https://github.com/DevelAngel/matrix-mcp/commit/8d5ea423f9666aee1f2ecdeb56f4375b72d97e1b)) - Angelos Drossos
+
 ### Features
 
-- **(relay)** support LLM communication - ([1540c87](https://github.com/DevelAngel/matrix-mcp/commit/1540c872ce302534e8842b6d2552241e38934a13)) - Angelos Drossos
+- **(relay)** support LLM communication - ([91d0a17](https://github.com/DevelAngel/matrix-mcp/commit/91d0a1799ab562ad9d34bb7f7ed23d83e09299c5)) - Angelos Drossos
+- **(relay)** implement MCP sampling - ([39ac029](https://github.com/DevelAngel/matrix-mcp/commit/39ac0298813f369afaf4fa25694c72a2a3d45c03)) - Angelos Drossos
 
 ### Miscellaneous Chores
 
@@ -15,6 +20,10 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 ## [0.2.0](https://github.com/DevelAngel/matrix-mcp/compare/v0.1.0..v0.2.0) - 2026-07-31
+
+### Build
+
+- reorganize workspace and bump version to 0.2.0 - ([f9240fd](https://github.com/DevelAngel/matrix-mcp/commit/f9240fdfc2c4c70ac421c1d1c713f1b5f38d2f47)) - Angelos Drossos
 
 ### Features
 
@@ -28,6 +37,11 @@ All notable changes to this project will be documented in this file. See [conven
 
 ---
 ## [0.1.0] - 2026-07-31
+
+### Build
+
+- enable tokio with full features - ([36caaf2](https://github.com/DevelAngel/matrix-mcp/commit/36caaf22f48a20a57d1b32b1081814c399dd3904)) - Angelos Drossos
+- add justfile - ([36e9653](https://github.com/DevelAngel/matrix-mcp/commit/36e96535fc08c9b7b0f785fc088008478430d685)) - Angelos Drossos
 
 ### Features
 
