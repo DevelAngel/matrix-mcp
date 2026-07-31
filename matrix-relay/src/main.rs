@@ -53,7 +53,13 @@ async fn generate_message(
     client_id: &str,
     client_secret: &str,
 ) -> Result<String> {
-    let mut oauth_state = OAuthState::new(generate_url, None)
+    let default_headers = reqwest::header::HeaderMap::new();
+    let oauth_http_client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(60))
+        .default_headers(default_headers)
+        .build()
+        .context("failed to create http client")?;
+    let mut oauth_state = OAuthState::new(generate_url, Some(oauth_http_client))
         .await
         .with_context(|| format!("failed to initialize OAuth state for {generate_url}"))?;
     oauth_state
