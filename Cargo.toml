@@ -22,7 +22,7 @@ clap = { version = "4.6.4", features = ["derive", "env"] }
 clap-verbosity-flag = { version = "3.0.4", features = ["tracing"] }
 matrix-sdk = { version = "0.18.0", features = ["anyhow", "bundled-sqlite", "markdown"] }
 reqwest = { version = "0.13", default-features = false, features = ["rustls"] }
-rmcp = "2.2.0"
+rmcp = "3.0.1"
 secrecy = "0.10.3"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1.0.145"
