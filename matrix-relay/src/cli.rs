@@ -55,6 +55,16 @@ pub(crate) struct Cli {
     #[arg(long, env = "MATRIX_GENERATE_TOOL")]
     pub generate_tool: String,
 
+    /// OAuth 2.1 client ID used to authenticate with the "generate message"
+    /// MCP server via the client credentials grant.
+    #[arg(long, env = "MATRIX_GENERATE_CLIENT_ID")]
+    pub generate_client_id: String,
+
+    /// OAuth 2.1 client secret used to authenticate with the "generate
+    /// message" MCP server via the client credentials grant.
+    #[arg(long, env = "MATRIX_GENERATE_CLIENT_SECRET", hide_env_values(true))]
+    pub generate_client_secret: SecretString,
+
     // verbose and quiet flag handling
     #[command(flatten)]
     pub verbosity: Verbosity<WarnLevel>,

@@ -2089,6 +2089,7 @@ dependencies = [
  "clap",
  "clap-verbosity-flag",
  "matrix-bot",
+ "reqwest",
  "rmcp",
  "secrecy",
  "serde_json",
@@ -3077,6 +3078,7 @@ dependencies = [
  "http",
  "http-body",
  "http-body-util",
+ "oauth2",
  "pastey",
  "pin-project-lite",
  "rand 0.10.2",
@@ -3092,6 +3094,7 @@ dependencies = [
  "tokio-util",
  "tower-service",
  "tracing",
+ "url",
  "uuid",
 ]
 

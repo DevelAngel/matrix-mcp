@@ -8,6 +8,8 @@ use clap::Parser;
 use rmcp::ServiceExt;
 use rmcp::model::CallToolRequestParams;
 use rmcp::transport::StreamableHttpClientTransport;
+use rmcp::transport::auth::{AuthClient, ClientCredentialsConfig, OAuthState};
+use rmcp::transport::streamable_http_client::StreamableHttpClientTransportConfig;
 use secrecy::ExposeSecret;
 
 #[tokio::main]
@@ -18,7 +20,13 @@ async fn main() -> Result<()> {
         .with_writer(std::io::stderr)
         .init();
 
-    let text = generate_message(&cli.generate_url, &cli.generate_tool).await?;
+    let text = generate_message(
+        &cli.generate_url,
+        &cli.generate_tool,
+        &cli.generate_client_id,
+        cli.generate_client_secret.expose_secret(),
+    )
+    .await?;
 
     let bot = Bot::connect(
         &cli.homeserver,
@@ -36,10 +44,39 @@ async fn main() -> Result<()> {
 }
 
 /// Connects as an MCP client to the "generate message" server at
-/// `generate_url` (Streamable HTTP), calls its `generate_tool` tool, and
-/// returns the generated message text.
-async fn generate_message(generate_url: &str, generate_tool: &str) -> Result<String> {
-    let transport = StreamableHttpClientTransport::from_uri(generate_url);
+/// `generate_url` (Streamable HTTP), authenticating via the OAuth 2.1
+/// client credentials grant, calls its `generate_tool` tool, and returns the
+/// generated message text.
+async fn generate_message(
+    generate_url: &str,
+    generate_tool: &str,
+    client_id: &str,
+    client_secret: &str,
+) -> Result<String> {
+    let mut oauth_state = OAuthState::new(generate_url, None)
+        .await
+        .with_context(|| format!("failed to initialize OAuth state for {generate_url}"))?;
+    oauth_state
+        .authenticate_client_credentials(ClientCredentialsConfig::ClientSecret {
+            client_id: client_id.to_owned(),
+            client_secret: client_secret.to_owned(),
+            scopes: vec![],
+            resource: Some(generate_url.to_owned()),
+        })
+        .await
+        .with_context(|| {
+            format!("OAuth client credentials authentication failed for {generate_url}")
+        })?;
+
+    let auth_manager = oauth_state
+        .into_authorization_manager()
+        .context("failed to get OAuth authorization manager")?;
+    let auth_client = AuthClient::new(reqwest::Client::default(), auth_manager);
+    let transport = StreamableHttpClientTransport::with_client(
+        auth_client,
+        StreamableHttpClientTransportConfig::with_uri(generate_url),
+    );
+
     let client_info = rmcp::model::ClientInfo::new(
         rmcp::model::ClientCapabilities::default(),
         rmcp::model::Implementation::new("matrix-relay", env!("CARGO_PKG_VERSION")),
