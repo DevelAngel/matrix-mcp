@@ -5,19 +5,27 @@ use matrix_bot::Bot;
 
 use anyhow::{Context, Result};
 use clap::Parser;
+use reqwest::Client;
+use reqwest::header::HeaderMap;
 use rmcp::ServiceExt;
-use rmcp::model::ReadResourceRequestParams;
+use rmcp::model::{
+    ClientCapabilities, ClientInfo, Implementation, ReadResourceRequestParams, ReadResourceResult,
+    ResourceContents,
+};
 use rmcp::transport::StreamableHttpClientTransport;
 use rmcp::transport::auth::{AuthClient, ClientCredentialsConfig, OAuthState};
 use rmcp::transport::streamable_http_client::StreamableHttpClientTransportConfig;
 use secrecy::ExposeSecret;
+
+use std::io;
+use std::time::Duration;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
     tracing_subscriber::fmt()
         .with_max_level(cli.verbosity)
-        .with_writer(std::io::stderr)
+        .with_writer(io::stderr)
         .init();
 
     let text = generate_message(
@@ -53,10 +61,9 @@ async fn generate_message(
     client_id: &str,
     client_secret: &str,
 ) -> Result<String> {
-    let default_headers = reqwest::header::HeaderMap::new();
-    let oauth_http_client = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(60))
-        .default_headers(default_headers)
+    let oauth_http_client = Client::builder()
+        .timeout(Duration::from_secs(60))
+        .default_headers(HeaderMap::new())
         .build()
         .context("failed to create http client")?;
     let mut oauth_state = OAuthState::new(generate_url, Some(oauth_http_client))
@@ -77,15 +84,15 @@ async fn generate_message(
     let auth_manager = oauth_state
         .into_authorization_manager()
         .context("failed to get OAuth authorization manager")?;
-    let auth_client = AuthClient::new(reqwest::Client::default(), auth_manager);
+    let auth_client = AuthClient::new(Client::default(), auth_manager);
     let transport = StreamableHttpClientTransport::with_client(
         auth_client,
         StreamableHttpClientTransportConfig::with_uri(generate_url),
     );
 
-    let client_info = rmcp::model::ClientInfo::new(
-        rmcp::model::ClientCapabilities::default(),
-        rmcp::model::Implementation::new("matrix-relay", env!("CARGO_PKG_VERSION")),
+    let client_info = ClientInfo::new(
+        ClientCapabilities::default(),
+        Implementation::new("matrix-relay", env!("CARGO_PKG_VERSION")),
     );
     let client = client_info
         .serve(transport)
@@ -105,12 +112,12 @@ async fn generate_message(
 /// Concatenates all text contents of a resource read result. Resources are
 /// meant to return exactly one content item, but joining multiple (e.g. one
 /// per sub-resource) is harmless and doesn't need special-casing.
-fn extract_text(result: &rmcp::model::ReadResourceResult) -> Option<String> {
+fn extract_text(result: &ReadResourceResult) -> Option<String> {
     let text: String = result
         .contents
         .iter()
         .filter_map(|content| match content {
-            rmcp::model::ResourceContents::TextResourceContents { text, .. } => Some(text.as_str()),
+            ResourceContents::TextResourceContents { text, .. } => Some(text.as_str()),
             _ => None,
         })
         .collect::<Vec<_>>()
