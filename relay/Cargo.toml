@@ -12,6 +12,7 @@ anyhow.workspace = true
 clap.workspace = true
 clap-verbosity-flag.workspace = true
 matrix-bot = { path = "../bot" }
+matrix-sampling = { path = "../sampling" }
 reqwest.workspace = true
 rmcp = { workspace = true, features = [
   "auth",

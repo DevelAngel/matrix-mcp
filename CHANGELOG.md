@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.3.0](https://github.com/DevelAngel/matrix-mcp/compare/v0.2.0..v0.3.0) - 2026-07-31
+
+### Features
+
+- **(relay)** support LLM communication - ([1540c87](https://github.com/DevelAngel/matrix-mcp/commit/1540c872ce302534e8842b6d2552241e38934a13)) - Angelos Drossos
+
+### Miscellaneous Chores
+
+- remove unneeded namespaces - ([7f142c3](https://github.com/DevelAngel/matrix-mcp/commit/7f142c39e92a090673e53ead8f98224895255d98)) - Angelos Drossos
+
+---
 ## [0.2.0](https://github.com/DevelAngel/matrix-mcp/compare/v0.1.0..v0.2.0) - 2026-07-31
 
 ### Features

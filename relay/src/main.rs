@@ -2,6 +2,7 @@ mod cli;
 
 use crate::cli::Cli;
 use matrix_bot::Bot;
+use matrix_sampling::LLM;
 
 use anyhow::{Context, Result};
 use clap::Parser;
@@ -28,13 +29,25 @@ async fn main() -> Result<()> {
         .with_writer(io::stderr)
         .init();
 
-    let text = generate_message(
+    let mut text = generate_message(
         &cli.generate_url,
         &cli.generate_resource,
         &cli.generate_client_id,
         cli.generate_client_secret.expose_secret(),
     )
     .await?;
+
+    let llm = LLM::connect("http://jetson.fritz.box/v1", None);
+    let response = llm
+        .send(
+            "Say something motivating with a Zelda-flavored voice about the report",
+            &text,
+        )
+        .await
+        .context("failed to retrieve a motivating sentence from LLM")?;
+
+    text.push_str("\n\n");
+    text.push_str(&response);
 
     let bot = Bot::connect(
         &cli.homeserver,

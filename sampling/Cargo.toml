@@ -1,0 +1,15 @@
+[package]
+name = "matrix-sampling"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+async-openai = { workspace = true, features = ["completions", "chat-completion", "chat-completion-types"] }
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true

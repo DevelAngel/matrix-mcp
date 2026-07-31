@@ -17,6 +17,7 @@ unsafe_code = "forbid"
 [workspace.dependencies]
 anyhow = "1.0.104"
 assert_fs = "1.1.3"
+async-openai = "0.41"
 axum = "0.8.9"
 clap = { version = "4.6.4", features = ["derive", "env"] }
 clap-verbosity-flag = { version = "3.0.4", features = ["tracing"] }
