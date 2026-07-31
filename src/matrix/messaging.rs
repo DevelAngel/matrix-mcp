@@ -38,12 +38,55 @@ pub async fn send_message(client: &Client, room_id_or_alias: &str, text: &str) -
         .get_room(&room_id)
         .with_context(|| format!("not a member of room {room_id}, or room is unknown"))?;
 
-    let mut text_content = TextMessageEventContent::plain(text);
-    text_content.formatted = FormattedBody::markdown(text);
-    let content = RoomMessageEventContent::new(MessageType::Text(text_content));
-
-    room.send(content).await.context("failed to send message")?;
+    room.send(build_content(text))
+        .await
+        .context("failed to send message")?;
     tracing::info!("message sent to {room_id}");
 
     Ok(())
+}
+
+/// Builds the message content for `text`, rendering it as Markdown into an
+/// HTML `formatted_body` alongside the plain-text fallback. If `text`
+/// contains no Markdown formatting, `formatted` stays `None` and clients
+/// just show the plain text.
+fn build_content(text: &str) -> RoomMessageEventContent {
+    let mut text_content = TextMessageEventContent::plain(text);
+    text_content.formatted = FormattedBody::markdown(text);
+    RoomMessageEventContent::new(MessageType::Text(text_content))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn as_text(content: &RoomMessageEventContent) -> &TextMessageEventContent {
+        match &content.msgtype {
+            MessageType::Text(text) => text,
+            other => panic!("expected a text message, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn build_content_keeps_plain_text_as_body() {
+        let content = build_content("just plain text, no markdown");
+        assert_eq!(as_text(&content).body, "just plain text, no markdown");
+    }
+
+    #[test]
+    fn build_content_without_markdown_has_no_formatted_body() {
+        let content = build_content("just plain text, no markdown");
+        assert!(as_text(&content).formatted.is_none());
+    }
+
+    #[test]
+    fn build_content_with_markdown_renders_html() {
+        let content = build_content("**bold** and _italic_");
+        let formatted = as_text(&content)
+            .formatted
+            .as_ref()
+            .expect("markdown should produce a formatted body");
+        assert!(formatted.body.contains("<strong>bold</strong>"));
+        assert!(formatted.body.contains("<em>italic</em>"));
+    }
 }

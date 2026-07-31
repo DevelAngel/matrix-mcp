@@ -23,10 +23,10 @@ language = "system"
 types = ["rust"]
 pass_filenames = false
 entry = "cargo clippy --all-targets --all-features -- -D warnings"
-# [[repos.hooks]]
-# id = "cargo-test"
-# name = "cargo test"
-# language = "system"
-# types = ["rust"]
-# pass_filenames = false
-# entry = "just test"
+[[repos.hooks]]
+id = "cargo-test"
+name = "cargo test"
+language = "system"
+types = ["rust"]
+pass_filenames = false
+entry = "just test"

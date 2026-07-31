@@ -74,3 +74,55 @@ fn save_session(session_file: &Path, session: &MatrixSession) -> Result<()> {
         .with_context(|| format!("failed to write session file {}", session_file.display()))?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use assert_fs::fixture::{FileWriteStr, PathChild};
+    use matrix_sdk::ruma::{owned_device_id, owned_user_id};
+    use matrix_sdk::{SessionMeta, SessionTokens};
+
+    fn sample_session() -> MatrixSession {
+        MatrixSession {
+            meta: SessionMeta {
+                user_id: owned_user_id!("@bot:example.com"),
+                device_id: owned_device_id!("TESTDEVICE"),
+            },
+            tokens: SessionTokens {
+                access_token: "my-token".to_owned(),
+                refresh_token: None,
+            },
+        }
+    }
+
+    #[test]
+    fn load_session_returns_none_when_file_is_missing() {
+        let dir = assert_fs::TempDir::new().unwrap();
+        let session_file = dir.child("session.json");
+
+        assert!(load_session(session_file.path()).unwrap().is_none());
+    }
+
+    #[test]
+    fn save_then_load_session_round_trips() {
+        let dir = assert_fs::TempDir::new().unwrap();
+        let session_file = dir.child("session.json");
+        let session = sample_session();
+
+        save_session(session_file.path(), &session).unwrap();
+        let loaded = load_session(session_file.path())
+            .unwrap()
+            .expect("session should exist");
+
+        assert_eq!(loaded, session);
+    }
+
+    #[test]
+    fn load_session_rejects_invalid_json() {
+        let dir = assert_fs::TempDir::new().unwrap();
+        let session_file = dir.child("session.json");
+        session_file.write_str("not json").unwrap();
+
+        assert!(load_session(session_file.path()).is_err());
+    }
+}
