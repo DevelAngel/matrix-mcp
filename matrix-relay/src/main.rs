@@ -6,7 +6,7 @@ use matrix_bot::Bot;
 use anyhow::{Context, Result};
 use clap::Parser;
 use rmcp::ServiceExt;
-use rmcp::model::CallToolRequestParams;
+use rmcp::model::ReadResourceRequestParams;
 use rmcp::transport::StreamableHttpClientTransport;
 use rmcp::transport::auth::{AuthClient, ClientCredentialsConfig, OAuthState};
 use rmcp::transport::streamable_http_client::StreamableHttpClientTransportConfig;
@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
 
     let text = generate_message(
         &cli.generate_url,
-        &cli.generate_tool,
+        &cli.generate_resource,
         &cli.generate_client_id,
         cli.generate_client_secret.expose_secret(),
     )
@@ -45,11 +45,11 @@ async fn main() -> Result<()> {
 
 /// Connects as an MCP client to the "generate message" server at
 /// `generate_url` (Streamable HTTP), authenticating via the OAuth 2.1
-/// client credentials grant, calls its `generate_tool` tool, and returns the
-/// generated message text.
+/// client credentials grant, reads its `generate_resource` resource, and
+/// returns the generated message text.
 async fn generate_message(
     generate_url: &str,
-    generate_tool: &str,
+    generate_resource: &str,
     client_id: &str,
     client_secret: &str,
 ) -> Result<String> {
@@ -87,41 +87,26 @@ async fn generate_message(
         .with_context(|| format!("failed to connect to generate server at {generate_url}"))?;
 
     let result = client
-        .call_tool(
-            CallToolRequestParams::new(generate_tool.to_owned()).with_arguments(
-                serde_json::json!({})
-                    .as_object()
-                    .cloned()
-                    .unwrap_or_default(),
-            ),
-        )
+        .read_resource(ReadResourceRequestParams::new(generate_resource.to_owned()))
         .await
-        .with_context(|| format!("failed to call {generate_tool}"))?;
+        .with_context(|| format!("failed to read resource {generate_resource}"))?;
 
     let _ = client.cancel().await;
 
-    extract_text(&result).with_context(|| format!("{generate_tool} returned no text content"))
+    extract_text(&result).with_context(|| format!("{generate_resource} has no text contents"))
 }
 
-/// Pulls the generated message text out of a tool result, preferring
-/// structured content (`{"text": "..."}`, matching how `#[tool]`-generated
-/// servers serialize typed outputs) and falling back to concatenating any
-/// plain text content blocks.
-fn extract_text(result: &rmcp::model::CallToolResult) -> Option<String> {
-    if let Some(text) = result
-        .structured_content
-        .as_ref()
-        .and_then(|value| value.get("text"))
-        .and_then(|value| value.as_str())
-    {
-        return Some(text.to_owned());
-    }
-
+/// Concatenates all text contents of a resource read result. Resources are
+/// meant to return exactly one content item, but joining multiple (e.g. one
+/// per sub-resource) is harmless and doesn't need special-casing.
+fn extract_text(result: &rmcp::model::ReadResourceResult) -> Option<String> {
     let text: String = result
-        .content
+        .contents
         .iter()
-        .filter_map(|block| block.as_text())
-        .map(|text_content| text_content.text.as_str())
+        .filter_map(|content| match content {
+            rmcp::model::ResourceContents::TextResourceContents { text, .. } => Some(text.as_str()),
+            _ => None,
+        })
         .collect::<Vec<_>>()
         .join("\n");
 

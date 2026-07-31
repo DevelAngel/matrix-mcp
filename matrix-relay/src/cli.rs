@@ -49,11 +49,11 @@ pub(crate) struct Cli {
     #[arg(long, env = "MATRIX_GENERATE_URL")]
     pub generate_url: String,
 
-    /// Name of the tool to call on the "generate message" MCP server, e.g.
-    /// "daily_report". Not fixed yet, hence configurable rather than
-    /// hardcoded.
-    #[arg(long, env = "MATRIX_GENERATE_TOOL")]
-    pub generate_tool: String,
+    /// URI of the resource to read on the "generate message" MCP server,
+    /// e.g. "kid://daily_report". Not fixed yet, hence configurable rather
+    /// than hardcoded.
+    #[arg(long, env = "MATRIX_GENERATE_RESOURCE")]
+    pub generate_resource: String,
 
     /// OAuth 2.1 client ID used to authenticate with the "generate message"
     /// MCP server via the client credentials grant.
