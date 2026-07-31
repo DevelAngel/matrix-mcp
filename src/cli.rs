@@ -34,6 +34,14 @@ pub(crate) struct Cli {
     #[arg(long, env = "MATRIX_STATE_DIR", default_value = "./matrix-state")]
     pub state_dir: PathBuf,
 
+    /// Room ID to send the message to, e.g. "!abcdef:example.com".
+    #[arg(long, env = "MATRIX_ROOM_ID")]
+    pub room_id: String,
+
+    /// Path to a file whose content (Markdown) is sent as the message.
+    #[arg(long, env = "MATRIX_MESSAGE_FILE")]
+    pub message_file: PathBuf,
+
     // verbose and quiet flag handling
     #[command(flatten)]
     pub verbosity: Verbosity<WarnLevel>,
