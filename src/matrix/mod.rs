@@ -8,9 +8,11 @@ use std::path::Path;
 
 /// A logged-in, cross-signed Matrix client.
 ///
-/// This is the entry point for anything that needs to talk to Matrix -
-/// today the CLI binary, later e.g. an MCP server exposing `send_message`
-/// as a tool.
+/// This is the entry point for anything that needs to talk to Matrix - the
+/// MCP server exposing `send_message` as a tool. Cheap to clone: like
+/// [`Client`] itself, it just clones a handle to the shared connection
+/// state, which the streamable HTTP transport needs to do per session.
+#[derive(Clone)]
 pub struct Bot {
     client: Client,
 }
