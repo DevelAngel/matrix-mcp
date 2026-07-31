@@ -1,6 +1,7 @@
 pub use clap::Parser;
 use clap_verbosity_flag::{Verbosity, WarnLevel};
 use secrecy::SecretString;
+use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
@@ -26,6 +27,12 @@ pub(crate) struct Cli {
     /// verification.
     #[arg(long, env = "MATRIX_RECOVERY_KEY", hide_env_values(true))]
     pub recovery_key: SecretString,
+
+    /// Directory used to persist the Matrix state/crypto store and the login
+    /// session across restarts, so the bot keeps reusing the same device
+    /// instead of accumulating a new one on every run.
+    #[arg(long, env = "MATRIX_STATE_DIR", default_value = "./matrix-state")]
+    pub state_dir: PathBuf,
 
     // verbose and quiet flag handling
     #[command(flatten)]

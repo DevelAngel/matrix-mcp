@@ -1819,6 +1819,7 @@ dependencies = [
  "clap-verbosity-flag",
  "matrix-sdk",
  "secrecy",
+ "serde_json",
  "tokio",
  "tracing",
  "tracing-subscriber",
