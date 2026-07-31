@@ -2,9 +2,15 @@ use anyhow::{Context, Result};
 use async_openai::Client;
 use async_openai::config::OpenAIConfig;
 use async_openai::types::chat::{
+    ChatCompletionRequestAssistantMessageArgs, ChatCompletionRequestMessage,
     ChatCompletionRequestSystemMessageArgs, ChatCompletionRequestUserMessageArgs,
     CreateChatCompletionRequestArgs,
 };
+
+pub enum Message {
+    User(String),
+    Assistant(String),
+}
 
 pub struct LLM {
     client: Client<OpenAIConfig>,
@@ -19,21 +25,46 @@ impl LLM {
         Self { client }
     }
 
-    pub async fn send(&self, system_msg: &str, user_msg: &str) -> Result<String> {
-        let system_msg = ChatCompletionRequestSystemMessageArgs::default()
-            .content(system_msg)
-            .build()
-            .context("failed to create system message")?;
-
-        let user_msg = ChatCompletionRequestUserMessageArgs::default()
-            .content(user_msg)
-            .build()
-            .context("failed to create user message")?;
+    pub async fn send(
+        &self,
+        system_prompt: Option<&str>,
+        messages: Vec<Message>,
+        temperature: f32,
+    ) -> Result<String> {
+        let mut chat_messages = Vec::<ChatCompletionRequestMessage>::with_capacity(
+            messages.len() + system_prompt.map_or(0, |_| 1),
+        );
+        if let Some(system_prompt) = system_prompt {
+            let system_prompt = ChatCompletionRequestSystemMessageArgs::default()
+                .content(system_prompt)
+                .build()
+                .context("failed to create system message")?;
+            chat_messages.push(system_prompt.into());
+        }
+        for msg in messages {
+            let msg = match msg {
+                Message::User(msg) => {
+                    let msg = ChatCompletionRequestUserMessageArgs::default()
+                        .content(msg)
+                        .build()
+                        .context("failed to create user message")?;
+                    msg.into()
+                }
+                Message::Assistant(msg) => {
+                    let msg = ChatCompletionRequestAssistantMessageArgs::default()
+                        .content(msg)
+                        .build()
+                        .context("failed to create user message")?;
+                    msg.into()
+                }
+            };
+            chat_messages.push(msg);
+        }
 
         let request = CreateChatCompletionRequestArgs::default()
             .model("auto")
-            .messages(vec![system_msg.into(), user_msg.into()])
-            .temperature(0.7)
+            .messages(chat_messages)
+            .temperature(temperature)
             .build()?;
         tracing::warn!("send message to LLM, answer may take some mintues");
         let response = &self

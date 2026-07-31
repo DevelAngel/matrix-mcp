@@ -65,6 +65,10 @@ pub(crate) struct Cli {
     #[arg(long, env = "MATRIX_GENERATE_CLIENT_SECRET", hide_env_values(true))]
     pub generate_client_secret: SecretString,
 
+    /// OpenAI-compatible API Base URL (e.g. "http://localhost:8000/v1")
+    #[arg(long, env = "MATRIX_LLM_API_BASE_URL")]
+    pub llm_api_base_url: String,
+
     // verbose and quiet flag handling
     #[command(flatten)]
     pub verbosity: Verbosity<InfoLevel>,

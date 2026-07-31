@@ -20,7 +20,7 @@ pub async fn send_message(client: &Client, room_id_or_alias: &str, text: &str) -
         .await
         .context("failed to sync")?;
 
-    // A room alias (e.g. "#quests:drossos.de") isn't a room ID and can't be
+    // A room alias (e.g. "#foo:example.com") isn't a room ID and can't be
     // looked up with `get_room` directly - it has to be resolved to the
     // actual room ID via the server first.
     let room_id: OwnedRoomId = match <&RoomId>::try_from(&*room_or_alias_id) {
