@@ -29,3 +29,10 @@ language = "system"
 types = ["rust"]
 pass_filenames = false
 entry = "just test"
+[[repos.hooks]]
+id = "git-cliff"
+name = "git cliff"
+language = "system"
+pass_filenames = false
+files = { glob = [ "Cargo.lock", "Cargo.toml", "**/Cargo.toml" ] }
+entry = "git cliff --bump --output CHANGELOG.md"

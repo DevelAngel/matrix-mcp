@@ -1,15 +1,19 @@
 [package]
 name = "matrix-relay"
-version = "0.1.0"
+version.workspace = true
 edition.workspace = true
+authors.workspace = true
+
+[lints]
+workspace = true
 
 [dependencies]
 anyhow.workspace = true
 clap.workspace = true
 clap-verbosity-flag.workspace = true
-matrix-bot = { path = "../matrix-bot" }
-reqwest = { version = "0.13", default-features = false, features = ["rustls"] }
-rmcp = { version = "2.2.0", features = [
+matrix-bot = { path = "../bot" }
+reqwest.workspace = true
+rmcp = { workspace = true, features = [
   "auth",
   "client",
   "reqwest",
