@@ -21,6 +21,12 @@ pub(crate) struct Cli {
     #[arg(long, env = "MATRIX_PASSWORD", hide_env_values(true))]
     pub password: SecretString,
 
+    /// Recovery key used to recover secrets (and thereby cross-sign this
+    /// device) after login, so the bot's device is trusted without manual
+    /// verification.
+    #[arg(long, env = "MATRIX_RECOVERY_KEY", hide_env_values(true))]
+    pub recovery_key: SecretString,
+
     // verbose and quiet flag handling
     #[command(flatten)]
     pub verbosity: Verbosity<WarnLevel>,
