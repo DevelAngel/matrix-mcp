@@ -7,10 +7,10 @@ use matrix_sdk::Client;
 use matrix_sdk::authentication::matrix::MatrixSession;
 use matrix_sdk::config::SyncSettings;
 use matrix_sdk::encryption::recovery::RecoveryState;
-use matrix_sdk::ruma::RoomId;
 use matrix_sdk::ruma::events::room::message::{
     FormattedBody, MessageType, RoomMessageEventContent, TextMessageEventContent,
 };
+use matrix_sdk::ruma::{OwnedRoomId, RoomId, RoomOrAliasId};
 use secrecy::ExposeSecret;
 use std::path::Path;
 
@@ -41,9 +41,9 @@ async fn main() -> Result<()> {
 /// messages, so we don't run a continuous sync loop or event handler - just
 /// enough of a sync to have the room and device state needed to send
 /// (encrypted) messages.
-async fn send_message(client: &Client, room_id: &str, message_file: &Path) -> Result<()> {
-    let room_id =
-        RoomId::parse(room_id).with_context(|| format!("'{room_id}' is not a valid room ID"))?;
+async fn send_message(client: &Client, room_id_or_alias: &str, message_file: &Path) -> Result<()> {
+    let room_or_alias_id = RoomOrAliasId::parse(room_id_or_alias)
+        .with_context(|| format!("'{room_id_or_alias}' is neither a valid room ID nor alias"))?;
 
     let text = std::fs::read_to_string(message_file)
         .with_context(|| format!("failed to read message file {}", message_file.display()))?;
@@ -52,6 +52,20 @@ async fn send_message(client: &Client, room_id: &str, message_file: &Path) -> Re
         .sync_once(SyncSettings::default())
         .await
         .context("failed to sync")?;
+
+    // A room alias (e.g. "#quests:drossos.de") isn't a room ID and can't be
+    // looked up with `get_room` directly - it has to be resolved to the
+    // actual room ID via the server first.
+    let room_id: OwnedRoomId = match <&RoomId>::try_from(&*room_or_alias_id) {
+        Ok(room_id) => room_id.to_owned(),
+        Err(alias) => {
+            client
+                .resolve_room_alias(alias)
+                .await
+                .with_context(|| format!("failed to resolve room alias {alias}"))?
+                .room_id
+        }
+    };
 
     let room = client
         .get_room(&room_id)

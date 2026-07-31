@@ -34,7 +34,8 @@ pub(crate) struct Cli {
     #[arg(long, env = "MATRIX_STATE_DIR", default_value = "./matrix-state")]
     pub state_dir: PathBuf,
 
-    /// Room ID to send the message to, e.g. "!abcdef:example.com".
+    /// Room to send the message to. Either a room ID (e.g.
+    /// "!abcdef:example.com") or a room alias (e.g. "#room:example.com").
     #[arg(long, env = "MATRIX_ROOM_ID")]
     pub room_id: String,
 
