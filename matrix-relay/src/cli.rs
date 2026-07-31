@@ -1,5 +1,5 @@
 pub use clap::Parser;
-use clap_verbosity_flag::{Verbosity, WarnLevel};
+use clap_verbosity_flag::{InfoLevel, Verbosity};
 use secrecy::SecretString;
 use std::path::PathBuf;
 
@@ -67,5 +67,5 @@ pub(crate) struct Cli {
 
     // verbose and quiet flag handling
     #[command(flatten)]
-    pub verbosity: Verbosity<WarnLevel>,
+    pub verbosity: Verbosity<InfoLevel>,
 }
