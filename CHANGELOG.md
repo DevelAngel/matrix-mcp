@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 ---
+## [0.4.0](https://github.com/DevelAngel/matrix-mcp/compare/v0.3.0..v0.4.0) - 2026-08-01
+
+### Features
+
+- **(relay)** [**breaking**] remove MCP sampling, introduce agent - ([b7d6ef6](https://github.com/DevelAngel/matrix-mcp/commit/b7d6ef6c01f9da97af24676ad0818f0aa707e901)) - Angelos Drossos
+
+---
 ## [0.3.0](https://github.com/DevelAngel/matrix-mcp/compare/v0.2.0..v0.3.0) - 2026-07-31
 
 ### Build
