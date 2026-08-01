@@ -7,9 +7,9 @@ use async_openai::types::chat::{
     CreateChatCompletionRequestArgs,
 };
 
-pub enum Message {
-    User(String),
-    Assistant(String),
+pub enum Message<'a> {
+    User(&'a str),
+    Assistant(&'a str),
 }
 
 pub struct LLM {
@@ -17,6 +17,10 @@ pub struct LLM {
 }
 
 impl LLM {
+    pub fn name(&self) -> &str {
+        self.client.config().org_id()
+    }
+
     pub fn connect(api_base_url: &str, api_key: Option<&str>) -> Self {
         let config = OpenAIConfig::new()
             .with_api_base(api_base_url)
@@ -25,10 +29,10 @@ impl LLM {
         Self { client }
     }
 
-    pub async fn send(
+    pub async fn send<'a>(
         &self,
-        system_prompt: Option<&str>,
-        messages: Vec<Message>,
+        system_prompt: Option<&'a str>,
+        messages: &'a [Message<'a>],
         temperature: f32,
     ) -> Result<String> {
         let mut chat_messages = Vec::<ChatCompletionRequestMessage>::with_capacity(
@@ -45,14 +49,14 @@ impl LLM {
             let msg = match msg {
                 Message::User(msg) => {
                     let msg = ChatCompletionRequestUserMessageArgs::default()
-                        .content(msg)
+                        .content(*msg)
                         .build()
                         .context("failed to create user message")?;
                     msg.into()
                 }
                 Message::Assistant(msg) => {
                     let msg = ChatCompletionRequestAssistantMessageArgs::default()
-                        .content(msg)
+                        .content(*msg)
                         .build()
                         .context("failed to create user message")?;
                     msg.into()
