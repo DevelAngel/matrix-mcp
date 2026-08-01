@@ -34,5 +34,5 @@ id = "git-cliff"
 name = "git cliff"
 language = "system"
 pass_filenames = false
-entry = "git cliff --bump --output CHANGELOG.md"
+entry = "git cliff --offline --bump --output CHANGELOG.md"
 files = "Cargo.(lock|toml)$"
